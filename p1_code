@@ -1,0 +1,113 @@
+from py_wake.examples.data.hornsrev1 import Hornsrev1Site, V80, wt_x, wt_y, wt16_x, wt16_y
+from py_wake import NOJ
+from py_wake.site import UniformWeibullSite
+import numpy as np
+import geopandas as gpd
+from py_wake.wind_turbines._wind_turbines import WindTurbine
+from py_wake.wind_turbines.generic_wind_turbines import GenericWindTurbine
+from py_wake.wind_turbines.power_ct_functions import PowerCtTabular
+
+###################################################################################################################################
+
+# Load the GeoJSON layout
+layout_gdf = gpd.read_file("vineyard_wind.geojson")
+
+layout_gdf = layout_gdf.to_crs(epsg=32631)
+
+# Extract the LineString coordinates
+turbine_coords = []
+
+for geom in layout_gdf.geometry:
+    if geom.geom_type == 'LineString':
+        coords = list(geom.coords)
+        turbine_coords.extend(coords)
+    elif geom.geom_type == 'MultiLineString':
+        for line in geom:
+            turbine_coords.extend(list(line.coords))
+
+# Separate x and y
+x, y = zip(*turbine_coords)
+x = np.array(x)
+y = np.array(y)
+
+###################################################################################################################################
+
+Haliade = GenericWindTurbine('G13MW', 220, 150, power_norm=13000, turbulence_intensity=.1)
+
+class VineyardWind(UniformWeibullSite):
+    def __init__(self, ti=0.1, shear=None):
+        f = np.array([7.66, 8.11, 7.42, 6.64, 7.04, 7.32, 8.53, 9.87, 9.03, 8.48, 9.81, 8.00]) #Line 6
+        a = np.array([10.26, 10.44, 9.52, 8.96, 9.58, 9.72, 11.48, 13.25, 12.46, 11.40, 12.35, 10.48]) #Line 12
+        k = np.array([2.225, 1.697, 1.721, 1.689, 1.525, 1.498, 1.686, 2.143, 2.369, 2.186, 2.385, 2.404]) #Line 13
+        UniformWeibullSite.__init__(self, np.array(f) / np.sum(f), a, k, ti=ti, shear=shear)
+
+#here we import the turbine, site and wake deficit model to use.
+windTurbines = Haliade
+site = VineyardWind()
+
+noj = NOJ(site,windTurbines)
+
+simulationResult = noj(x,y)
+simulationResult.aep()
+
+print ("Total AEP: %f GWh"%simulationResult.aep().sum())
+
+import matplotlib.pyplot as plt
+
+plt.figure()
+aep = simulationResult.aep()
+windTurbines.plot(x,y)
+c =plt.scatter(x, y, c=aep.sum(['wd','ws']))
+plt.colorbar(c, label='AEP [GWh]')
+plt.title('AEP of each turbine')
+plt.xlabel('x [m]')
+plt.ylabel('[m]')
+
+plt.figure()
+aep.sum(['wt','wd']).plot()
+plt.xlabel("Wind speed [m/s]")
+plt.ylabel("AEP [GWh]")
+plt.title('AEP vs wind speed')
+
+plt.figure()
+aep.sum(['wt','ws']).plot()
+plt.xlabel("Wind direction [deg]")
+plt.ylabel("AEP [GWh]")
+plt.title('AEP vs wind direction')
+
+wind_speed = 10
+wind_direction = 270
+
+plt.show()
+plt.figure()
+flow_map = simulationResult.flow_map(ws=wind_speed, wd=wind_direction)
+plt.figure(figsize=(18,10))
+flow_map.plot_wake_map()
+plt.xlabel('x [m]')
+plt.ylabel('y [m]')
+plt.title('Wake map for' + f' {wind_speed} m/s and {wind_direction} deg')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
