@@ -10,7 +10,7 @@ from py_wake.wind_turbines.power_ct_functions import PowerCtTabular
 ###################################################################################################################################
 
 # Load the GeoJSON layout
-layout_gdf = gpd.read_file("vineyard_wind.geojson")
+layout_gdf = gpd.read_file("vineyard.geojson")
 
 layout_gdf = layout_gdf.to_crs(epsg=32631)
 
@@ -78,36 +78,12 @@ plt.title('AEP vs wind direction')
 wind_speed = 10
 wind_direction = 270
 
-plt.show()
-plt.figure()
+
+
 flow_map = simulationResult.flow_map(ws=wind_speed, wd=wind_direction)
 plt.figure(figsize=(18,10))
 flow_map.plot_wake_map()
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
 plt.title('Wake map for' + f' {wind_speed} m/s and {wind_direction} deg')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+plt.show()
