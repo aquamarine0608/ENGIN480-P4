@@ -12,7 +12,7 @@ from py_wake.wind_turbines.power_ct_functions import PowerCtTabular
 # Load the GeoJSON layout
 layout_gdf = gpd.read_file("vineyard.geojson")
 
-layout_gdf = layout_gdf.to_crs(epsg=32631)
+layout_gdf = layout_gdf.to_crs(epsg=26986)
 
 # Extract the LineString coordinates
 turbine_coords = []
