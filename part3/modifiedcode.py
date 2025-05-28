@@ -1,3 +1,12 @@
+'''
+In this modified simulation, I reconfigured the hybrid power plant to emphasize solar power while reducing reliance on wind. 
+I decreased the number of wind turbines from 20 to 10 and downsized each from 10 MW to 5 MW with a smaller rotor diameter, reflecting a lower-density wind farm setup.
+I increased the solar capacity from 150 MW to 250 MW and optimized the PV tilt to 25° for improved solar performance at mid-latitudes.
+To support this solar-heavy design, I doubled the battery power rating to 40 MW and extended storage duration from 3 to 6 hours, ensuring better load balancing and energy shifting.
+I also raised the assumed cost of battery degradation to reflect a more conservative economic scenario and increased the number of batteries to match the higher energy storage needs.
+These changes simulate a more realistic and balanced hybrid system for locations with strong solar resources and moderate wind.
+'''
+
 import importlib
 import os
 import time
